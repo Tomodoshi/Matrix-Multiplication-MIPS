@@ -1,13 +1,11 @@
 .data
-
-	A:.word 2,3,7,5
-	b:.word 4,3
-	x:.word 9,2
+	A:.word 2,5,8,3
+	b:.word 3,2
+	x:.word 4,6
 	z:.word 0,0
 	y:.word 0,0
 	
 	newLine: .asciiz "\n"
-
 .text
 
 mian:
@@ -42,11 +40,6 @@ mian:
 	#Printing current number
 	li $v0, 1
 	add $a0, $zero, $t1
-	syscall
-	
-	#Printing a new Line
-	li $v0, 4
-	la $a0, newLine
 	syscall
 	
 	j exit
@@ -85,33 +78,36 @@ lin_alg:
 add_vec:
 
 	#loading the registers used in the funct. into the stack to protect their values 
-	addi $sp, $sp, -20
-	sw $t0, 0($sp)
-	sw $t1, 4($sp)
-	sw $t2, 8($sp)
-	sw $t3, 12($sp)
-	sw $ra, 16($sp)
+	addi $sp, $sp, -4
+	sw $ra, 0($sp)
 	
 	#performing b[0]+x[0] & b[1]+x[1]
-	lw $t0, 0($a0)
-	lw $t1, 0($a1)
-	add $t2, $t0, $t1
-	lw $t0, 4($a0)
-	lw $t1, 4($a1)
-	add $t3, $t0, $t1
+	add $t0, $zero, $a0
+	add $t1, $zero, $a1
+	add $t2, $zero, $zero
+	add $t5, $zero, $s3
+	
+	while:
+		beq $t2, 2, endWhile
+		lw $t3, 0($t0)
+		lw $t4, 0($t1)
+		add $t3, $t3, $t4
+		sw $t3, 0($t5)
+		add $t0, $t0, 4
+		add $t1, $t1, 4
+		add $t5, $t5, 4
+		addi $t2, $t2, 1
+		j while
+	endWhile:
+	
+	addi $t5, $t5, -8
 	
 	#storing and returning the result of b+x
-	sw $t2, 0($s3)
-	sw $t3, 4($s3)
-	add $v0, $zero, $s3
+	add $v0, $zero, $t5
 	
 	#Popping the stack to get the original values back
-	lw $ra, 16($sp)
-	lw $t3, 12($sp)
-	lw $t2, 8($sp)
-	lw $t1, 4($sp)
-	lw $t0, 0($sp)
-	addi $sp, $sp, 20
+	lw $ra, 0($sp)
+	addi $sp, $sp, 4
 	
 	#jumping back to the lin_alg method
 	jr $ra
@@ -119,48 +115,52 @@ add_vec:
 mul_matrix:
 
 	#loading the registers used in the funct. into the stack to protect their values 
-	addi $sp, $sp, -20
+	addi $sp, $sp, -4
 	sw $ra, 0($sp)
-	sw $t0, 4($sp)
-	sw $t1, 8($sp)
-	sw $t2, 12($sp)
-	sw $t3, 16($sp)
 	
-	#performing the matrix multiplication (A[0]*z[0] + A[1]*z[1])
-	lw $t0, 0($a0)
-	lw $t1, 0($a1)
-	mul $t2, $t0, $t1
-	lw $t0, 4($a0)
-	lw $t1, 4($a1)
-	mul $t3, $t0, $t1
-	add $t2, $t2, $t3
-	sw $t2, 0($s4)
+	add $t0, $a0, $zero
+	add $t1, $a1, $zero
+	addi $t2, $zero, 0
+	addi $t9, $zero, 0
 	
-	#performing the matrix multiplication (A[2]*z[0] + A[3]*z[1])
-	lw $t0, 8($a0)
-	lw $t1, 0($a1)
-	mul $t2, $t0, $t1
-	lw $t0, 12($a0)
-	lw $t1, 4($a1)
-	mul $t3, $t0, $t1
-	add $t2, $t2, $t3
-	sw $t2, 4($s4)
+	while2:
+		row1:
+		beq $t2, 2, preRow2
+		lw $t3, 0($t0)
+		lw $t4, 0($t1)
+		mul $t3, $t3, $t4
+		add $t8, $t8, $t3
+		addi $t0, $t0, 4
+		addi $t1, $t1, 4
+		addi $t2, $t2, 1
+		j while2
+		
+		preRow2:
+		add $t1, $a1, $zero
+		
+		row2:
+		beq $t2, 4, endWhile2
+		lw $t3, 0($t0)
+		lw $t4, 0($t1)
+		mul $t3, $t3, $t4
+		add $t9, $t9, $t3
+		addi $t0, $t0, 4
+		addi $t1, $t1, 4
+		addi $t2, $t2, 1
+		j row2
+	endWhile2:
 	
-	add $t9, $zero, $zero
-	
-	#returnning the product of A*z
-	add $v0, $v0, $s4
+	sw $t8, 0($s4)
+	sw $t9, 4($s4)
+	add $v0, $zero $s4
 	
 	#Popping the stack to get the original values back
 	lw $ra, 0($sp)
-	lw $t0, 4($sp)
-	lw $t1, 8($sp)
-	lw $t2, 12($sp)
-	lw $t3, 16($sp)
-	addi $sp, $sp, 20
+	addi $sp, $sp, 4
 	
 	#jumping back to the lin_alg method
 	jr $ra
 	
 exit:
-	
+
+
