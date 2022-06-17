@@ -4,7 +4,6 @@
 	x:.word 4,6
 	z:.word 0,0
 	y:.word 0,0
-	
 	newLine: .asciiz "\n"
 .text
 
@@ -72,7 +71,7 @@ lin_alg:
 	lw $ra, 0($sp)
 	addi $sp, $sp, 16
 	
-	#jumping out of the funt. back to the main method
+	#jumping out of the funct. back to the main method
 	jr $ra
 	
 add_vec:
@@ -114,13 +113,13 @@ add_vec:
 	
 mul_matrix:
 
-	#loading the registers used in the funct. into the stack to protect their values 
 	addi $sp, $sp, -4
 	sw $ra, 0($sp)
 	
 	add $t0, $a0, $zero
 	add $t1, $a1, $zero
 	addi $t2, $zero, 0
+	addi $t8, $zero, 0
 	addi $t9, $zero, 0
 	
 	while2:
@@ -133,7 +132,7 @@ mul_matrix:
 		addi $t0, $t0, 4
 		addi $t1, $t1, 4
 		addi $t2, $t2, 1
-		j while2
+		j row1
 		
 		preRow2:
 		add $t1, $a1, $zero
