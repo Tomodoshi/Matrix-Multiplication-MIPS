@@ -7,7 +7,7 @@
 	newLine: .asciiz "\n"
 .text
 
-mian:
+main:
 	#loading the addresses of the arrays into save registers
 	la $s0, A
 	la $s1, b
